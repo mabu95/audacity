@@ -1,0 +1,41 @@
+body {
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+
+header#header {
+    background: #224366;
+    padding: 1rem;
+}
+header#header svg {
+    display: block;
+    margin-right: 30px;
+    width: 100px;
+}
+header#header h1 {
+    color: #fff;
+    font-weight: bold;
+}
+header#header h1 small {
+    font-size: 20px;
+}
+
+.svg-logo {
+    fill: #fff;
+}
+
+.raid-info {
+    display: block;
+}
+.raid-info h3 {
+    font-size: 18px;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 0;
+}
+.raid-info span {
+    color: #fff;
+}
