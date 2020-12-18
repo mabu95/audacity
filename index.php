@@ -2,17 +2,11 @@
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 require_once 'app.php';
-
 $app = new App();
-
 $guildInfo = $app->getGuildInformations();
-
-//echo '<pre>';
-//print_r($guildInfo);
-//echo '</pre>';
-
-
+if(isset($_POST['edit'])): $app->editPlayer($_POST); endif;
 ?>
+
 <!doctype html>
 <html lang="de">
 <head>
@@ -84,28 +78,78 @@ $guildInfo = $app->getGuildInformations();
     </div>
 </header>
 
-<main id="main" class="container">
-    <table class="table">
+<main id="main" class="container mt-5 mb-5">
+
+    <?php
+        if(isset($_GET['edit'])): $player = $app->getPlayerByRow($_GET['edit']);
+    ?>
+        <form class="mb-5" action="/" method="post">
+            <div class="row">
+                <div class="col">
+                    <input type="text" name="player" class="form-control" placeholder="<?=$player[0];?>" value="<?=$player[0];?>">
+                </div>
+                <div class="col">
+                    <input type="text" name="name" class="form-control" placeholder="<?=$player[1];?>" value="<?=$player[1];?>">
+                </div>
+                <div class="col">
+                    <select class="form-control">
+                        <?= $player[2] === "1" ? '<option selected value="1">Main</option>' : '<option selected value="0">Ersatz</option>'; ?>
+                        <?= $player[2] === "1" ? '<option value="0">Ersatz</option>' : '<option value="1">Main</option>'; ?>
+                    </select>
+                </div>
+                <input type="hidden" name="id" value="<?=$_GET['edit'];?>" />
+                <div class="col">
+                    <button type="submit" class="btn btn-primary" name="edit">Speichern</button>
+                </div>
+            </div>
+        </form>
+    <?php endif; ?>
+
+    <table class="table table-striped table-bordered">
         <tr>
             <th>Name</th>
             <th>Klasse</th>
             <th>Spec</th>
             <th>Gearscore</th>
             <th>Pakt</th>
+            <th>RL Name</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
 
-    <?php foreach($app->getPlayers() AS $player): ?>
-        <?php $p = $app->getPlayerInformations($player['name']); ?>
-        <tr>
+    <?php foreach($app->getPlayers() AS $index => $player): ?>
+        <?php
+            $p = $app->getPlayerInformations($player['name']);
+            $r = strtolower(str_replace(' ', '', $p['class']));
+        ?>
+        <tr class="<?= $player['status'] == 0 ? 'table-warning' : ''; ?>" data-id="<?=$index;?>">
             <td><?= $p['name']; ?></td>
-            <td><img src="https://wow.zamimg.com/images/wow/icons/large/classicon_<?=strtolower($p['class'])?>.jpg" /></td>
+            <td><img src="https://wow.zamimg.com/images/wow/icons/large/classicon_<?=$r;?>.jpg" width="25px" /></td>
             <td><?= $p['active_spec_name']; ?></td>
             <td><?= $p['gear']['item_level_equipped']; ?></td>
             <td><?= $p['covenant']['name']; ?></td>
+            <td><?= $player['rname']; ?></td>
+            <td class="status"><?= $player['status'] == 1 ? 'Main' : 'Ersatz' ?></td>
+            <td>
+                <a href="?edit=<?=$index;?>" type="button" class="btn btn-dark editplayer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                    </svg>
+                </a>
+                <a type="button" class="btn btn-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z"/>
+                    </svg>
+                </a>
+            </td>
         </tr>
     <?php endforeach; ?>
     </table>
 </main>
+<script
+    src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+    crossorigin="anonymous"></script>
 
 </body>
 </html>

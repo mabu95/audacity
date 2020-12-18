@@ -30,7 +30,7 @@ class App
 
     public function getPlayerInformations($player)
     {
-
+        $player = urlencode($player);
         $url = 'https://raider.io/api/v1/characters/profile?region='.$this->config['region'].'&realm='.$this->config['realm'].'&name='.$player.'&fields=gear%2Ccovenant';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
@@ -56,9 +56,24 @@ class App
             if(!isset($row[0])) continue;
             $convert = explode('|', $row);
             $result[$i]['name'] = $convert[0];
-            $result[$i]['status'] = $convert[1];
+            $result[$i]['rname'] = $convert[1];
+            $result[$i]['status'] = $convert[2];
         }
 
         return $result;
+    }
+
+    public function getPlayerByRow($id)
+    {
+        $data = file_get_contents('player.txt');
+        $rows = explode("\n", $data);
+        $rows = array_map('trim', $rows);
+
+        $result = explode('|', $rows[$id]);
+        return $result;
+    }
+
+    public function editPlayer($data) {
+        print_r($data);
     }
 }
